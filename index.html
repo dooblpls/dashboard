@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desktop Auswahl</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --primary-dark: #2980b9;
+            --secondary: #2ecc71;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .header {
+            background-color: var(--primary);
+            padding: 1rem 2rem;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #dfe6e9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--primary-dark);
+            border: 2px solid white;
+        }
+
+        .username {
+            font-weight: 500;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .desktops-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .desktop-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .desktop-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .desktop-thumbnail {
+            height: 160px;
+            background-color: #34495e;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .desktop-icon {
+            font-size: 3rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .desktop-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .desktop-info {
+            padding: 1rem;
+        }
+
+        .desktop-name {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .desktop-details {
+            display: flex;
+            justify-content: space-between;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--secondary);
+        }
+
+        .desktop-actions {
+            padding: 0.75rem 1rem;
+            border-top: 1px solid #ecf0f1;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .connect-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .connect-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .search-bar {
+            display: flex;
+            margin-bottom: 1.5rem;
+            max-width: 500px;
+        }
+
+        .search-input {
+            flex-grow: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 1rem;
+        }
+
+        .search-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            padding: 0 1rem;
+            cursor: pointer;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #7f8c8d;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .desktops-grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .user-profile {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Verfügbare Desktops</h1>
+        <div class="user-profile">
+            <div class="username">Max Mustermann</div>
+            <div class="avatar">MM</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="Desktop suchen...">
+            <button class="search-btn">🔍</button>
+        </div>
+
+        <div class="desktops-grid">
+            <!-- Desktop 1 -->
+            <div class="desktop-card" onclick="downloadRDP('desktop-1')">
+                <div class="desktop-thumbnail">
+                    <div class="desktop-icon">🖥️</div>
+                </div>
+                <div class="desktop-info">
+                    <h3 class="desktop-name">Development PC</h3>
+                    <div class="desktop-details">
+                        <span>Windows 11</span>
+                        <div class="status">
+                            <div class="status-indicator"></div>
+                            <span>Online</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="desktop-actions">
+                    <span>192.168.1.101</span>
+                    <button class="connect-btn">Verbinden</button>
+                </div>
+            </div>
+
+            <!-- Desktop 2 -->
+            <div class="desktop-card" onclick="downloadRDP('desktop-2')">
+                <div class="desktop-thumbnail">
+                    <div class="desktop-icon">🖥️</div>
+                </div>
+                <div class="desktop-info">
+                    <h3 class="desktop-name">Marketing Workstation</h3>
+                    <div class="desktop-details">
+                        <span>Windows 10</span>
+                        <div class="status">
+                            <div class="status-indicator"></div>
+                            <span>Online</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="desktop-actions">
+                    <span>192.168.1.102</span>
+                    <button class="connect-btn">Verbinden</button>
+                </div>
+            </div>
+
+            <!-- Desktop 3 -->
+            <div class="desktop-card" onclick="downloadRDP('desktop-3')">
+                <div class="desktop-thumbnail">
+                    <div class="desktop-icon">🖥️</div>
+                </div>
+                <div class="desktop-info">
+                    <h3 class="desktop-name">Design Studio</h3>
+                    <div class="desktop-details">
+                        <span>Windows 11</span>
+                        <div class="status">
+                            <div class="status-indicator"></div>
+                            <span>Online</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="desktop-actions">
+                    <span>192.168.1.103</span>
+                    <button class="connect-btn">Verbinden</button>
+                </div>
+            </div>
+
+            <!-- Desktop 4 -->
+            <div class="desktop-card" onclick="downloadRDP('desktop-4')">
+                <div class="desktop-thumbnail">
+                    <div class="desktop-icon">🖥️</div>
+                </div>
+                <div class="desktop-info">
+                    <h3 class="desktop-name">Accounting System</h3>
+                    <div class="desktop-details">
+                        <span>Windows 10</span>
+                        <div class="status">
+                            <div class="status-indicator" style="background-color: #e74c3c;"></div>
+                            <span>Offline</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="desktop-actions">
+                    <span>192.168.1.104</span>
+                    <button class="connect-btn" disabled style="opacity: 0.5;">Verbinden</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <script>
+        function downloadRDP(desktopId) {
+            // Show loading overlay
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.style.display = 'flex';
+            
+            // Simulate RDP file generation and download
+            setTimeout(() => {
+                // Hide loading overlay
+                loadingOverlay.style.display = 'none';
+                
+                // Create a simple RDP file content
+                const rdpContent = 
+                `full address:s:${getDesktopIP(desktopId)}
+screen mode id:i:2
+use multimon:i:0
+session bpp:i:32
+audiomode:i:0
+username:s:Max Mustermann
+disable wallpaper:i:1
+disable full window drag:i:1
+`;
+                
+                // Create a Blob and trigger download
+                const blob = new Blob([rdpContent], { type: 'application/x-rdp' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `${getDesktopName(desktopId)}.rdp`;
+                link.click();
+                
+                // Clean up
+                URL.revokeObjectURL(link.href);
+            }, 1000);
+        }
+        
+        function getDesktopIP(desktopId) {
+            const desktopIPs = {
+                'desktop-1': '192.168.1.101',
+                'desktop-2': '192.168.1.102',
+                'desktop-3': '192.168.1.103',
+                'desktop-4': '192.168.1.104'
+            };
+            return desktopIPs[desktopId] || '127.0.0.1';
+        }
+        
+        function getDesktopName(desktopId) {
+            const desktopNames = {
+                'desktop-1': 'Development PC',
+                'desktop-2': 'Marketing Workstation',
+                'desktop-3': 'Design Studio',
+                'desktop-4': 'Accounting System'
+            };
+            return desktopNames[desktopId] || 'Unknown Desktop';
+        }
+        
+        // Search functionality
+        const searchInput = document.querySelector('.search-input');
+        const searchButton = document.querySelector('.search-btn');
+        const desktopCards = document.querySelectorAll('.desktop-card');
+        
+        function performSearch() {
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            desktopCards.forEach(card => {
+                const desktopName = card.querySelector('.desktop-name').textContent.toLowerCase();
+                const desktopIP = card.querySelector('.desktop-actions span').textContent.toLowerCase();
+                
+                if (desktopName.includes(searchTerm) || desktopIP.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        searchButton.addEventListener('click', performSearch);
+        searchInput.addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
+        });
+    </script>
+</body>
+</html>
